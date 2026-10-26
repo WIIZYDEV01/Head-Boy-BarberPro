@@ -31,11 +31,15 @@ export default async function LoginPage({
         <div className="glass-panel w-full max-w-md rounded-3xl p-8">
           <p className="font-serif text-3xl text-gold">{BRAND_NAME}</p>
           <h2 className="mt-2 text-lg font-medium">Sign in to continue</h2>
-          <p className="mt-2 text-sm text-muted">Google, Discord, or email. New email accounts are created on first sign-in.</p>
+          <p className="mt-2 text-sm text-muted">
+            Continue with Google, Discord, or email. First email sign-in creates the account.
+          </p>
           {error === "oauth" ? (
             <p className="mt-4 text-sm text-red-300">
-              {detail ||
-                "Google sign-in did not finish. Add this site URL in Supabase → Authentication → URL configuration, and in Google Cloud → Authorized JavaScript origins. Discord can stay off."}
+              {detail?.toLowerCase().includes("unable to exchange") ||
+              detail?.toLowerCase().includes("google and supabase")
+                ? "Google opened, but the Client secret in Supabase does not match Google Cloud. Open Supabase → Authentication → Google, paste the Client ID and Client secret from Head Boy BarberPro Web, Save, then try once more."
+                : detail || "Google sign-in did not finish. Try once more, or use email below."}
             </p>
           ) : null}
           <div className="mt-8 space-y-6">
