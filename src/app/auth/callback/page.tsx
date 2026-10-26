@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createBrowserClient } from "@supabase/ssr";
 import { isSupabaseConfigured } from "@/lib/env";
@@ -8,23 +8,32 @@ import { isSupabaseConfigured } from "@/lib/env";
 function CallbackHandler() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const started = useRef(false);
   const [status, setStatus] = useState("Signing you in with Google…");
 
   useEffect(() => {
+    if (started.current) return;
+    started.current = true;
+
+    const fail = (detail: string) => {
+      setStatus(detail);
+      router.replace(`/login?error=oauth&detail=${encodeURIComponent(detail)}`);
+    };
+
     const providerError = searchParams.get("error_description") || searchParams.get("error");
     if (providerError) {
-      router.replace(`/login?error=oauth&detail=${encodeURIComponent(providerError)}`);
+      fail(providerError);
       return;
     }
 
     const code = searchParams.get("code");
     if (!code) {
-      router.replace("/login?error=oauth&detail=Google did not send a login code.");
+      fail("Google did not send a login code.");
       return;
     }
 
     if (!isSupabaseConfigured()) {
-      router.replace("/login?error=oauth&detail=Supabase keys are missing.");
+      fail("Supabase keys are missing.");
       return;
     }
 
@@ -41,11 +50,15 @@ function CallbackHandler() {
       { auth: { detectSessionInUrl: false, flowType: "pkce" } },
     );
 
+    const timeout = window.setTimeout(() => {
+      fail("Google sign-in timed out. Check your network and try once more.");
+    }, 20000);
+
     void supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+      window.clearTimeout(timeout);
       document.cookie = "oauth_next=; path=/; max-age=0; samesite=lax";
       if (error) {
-        setStatus(error.message);
-        router.replace(`/login?error=oauth&detail=${encodeURIComponent(error.message)}`);
+        fail(error.message);
         return;
       }
       router.replace(destination);
@@ -54,7 +67,7 @@ function CallbackHandler() {
 
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
-      <p className="glass-panel rounded-2xl px-8 py-6 text-sm text-muted">{status}</p>
+      <p className="rounded-2xl border border-white/10 bg-black/70 px-8 py-6 text-sm text-muted">{status}</p>
     </div>
   );
 }

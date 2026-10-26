@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Outfit, Playfair_Display } from "next/font/google";
 import { Toaster } from "sonner";
-import { VideoBackground } from "@/components/media/video-background";
-import { RouteProgress } from "@/components/ui/route-progress";
+import { AppChrome } from "@/components/media/app-chrome";
 import { BRAND_NAME } from "@/lib/brand";
 import "./globals.css";
 
@@ -39,9 +38,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="dns-prefetch" href="https://videos.pexels.com" />
       </head>
       <body className="relative flex min-h-full flex-col bg-transparent text-foreground">
-        <VideoBackground />
-        <RouteProgress />
-        <div className="relative z-10 flex min-h-full flex-1 flex-col">{children}</div>
+        <AppChrome>{children}</AppChrome>
         <Toaster theme="dark" richColors position="top-right" />
       </body>
     </html>
