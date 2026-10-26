@@ -6,7 +6,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-  "308672627078-bubr9qkh3undlrt2viim0elu2n0oocv3.apps.googleusercontent.com";
+  "308672627078-bubt9qkh3undlrt2viim0elu2n0oocv3.apps.googleusercontent.com";
 
 type GooglePromptNotification = {
   isNotDisplayed: () => boolean;
