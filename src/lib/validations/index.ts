@@ -22,6 +22,13 @@ export const updatePasswordSchema = z.object({
 export const profileSchema = z.object({
   fullName: z.string().trim().min(2).max(80),
   phone: z.string().trim().max(30).optional().or(z.literal("")),
+  preferredStyle: z.string().trim().max(240).optional().or(z.literal("")),
+});
+
+export const reviewSchema = z.object({
+  appointmentId: z.string().uuid(),
+  rating: z.coerce.number().int().min(1).max(5),
+  comment: z.string().trim().max(400).optional().or(z.literal("")),
 });
 
 export const salonSchema = z.object({

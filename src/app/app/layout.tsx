@@ -37,7 +37,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
-      <AppSidebar items={items} userName={profile.full_name ?? "Account"} />
+      <AppSidebar
+        items={items}
+        userName={profile.full_name ?? "Account"}
+        avatarUrl={profile.avatar_url}
+      />
       <div className="min-w-0 flex-1 px-4 py-6 md:px-8">{children}</div>
     </div>
   );

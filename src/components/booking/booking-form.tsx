@@ -19,6 +19,9 @@ export function BookingForm({
   currency,
   services,
   barbers,
+  initialServiceId,
+  initialBarberId,
+  initialNotes,
 }: {
   salonId: string;
   slug: string;
@@ -26,9 +29,16 @@ export function BookingForm({
   currency: string;
   services: Service[];
   barbers: Barber[];
+  initialServiceId?: string;
+  initialBarberId?: string;
+  initialNotes?: string;
 }) {
-  const [serviceId, setServiceId] = useState(services[0]?.id ?? "");
-  const [barberId, setBarberId] = useState("");
+  const [serviceId, setServiceId] = useState(
+    initialServiceId && services.some((item) => item.id === initialServiceId)
+      ? initialServiceId
+      : (services[0]?.id ?? ""),
+  );
+  const [barberId, setBarberId] = useState(initialBarberId ?? "");
   const [date, setDate] = useState("");
   const [slots, setSlots] = useState<string[]>([]);
   const [startsAt, setStartsAt] = useState("");
@@ -149,7 +159,12 @@ export function BookingForm({
       </div>
       <div className="space-y-2">
         <Label htmlFor="notes">Notes</Label>
-        <Textarea id="notes" name="notes" placeholder="Optional notes for the salon" />
+        <Textarea
+          id="notes"
+          name="notes"
+          defaultValue={initialNotes}
+          placeholder="Optional notes for the salon"
+        />
       </div>
       {service ? (
         <p className="text-sm text-muted">

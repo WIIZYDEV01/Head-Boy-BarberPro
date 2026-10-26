@@ -22,6 +22,9 @@ export function SiteHeader() {
           <Link href="/contact" className="hover:text-foreground">
             Contact
           </Link>
+          <Link href="/app/profile" className="hover:text-foreground">
+            Profile
+          </Link>
         </nav>
         <Button asChild>
             <Link href="/app">Dashboard</Link>

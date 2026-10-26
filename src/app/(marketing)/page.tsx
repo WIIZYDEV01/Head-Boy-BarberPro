@@ -53,12 +53,12 @@ export default async function HomePage() {
             body: "Pick service, barber, and a live slot. Double-booking is blocked in the database, not just the calendar.",
           },
           {
-            title: "Published prices",
-            body: "Every service shows duration and real kobo pricing from the salon record — the pattern buyers expect.",
+            title: "Your profile",
+            body: "Photo, name, phone, and cut notes — the client card Booksy and theCut put on every visit.",
           },
           {
-            title: "Team & till",
-            body: "Staff profiles, opening hours, customers, and Paystack charges verified on the server.",
+            title: "Rebook & rate",
+            body: "Upcoming vs history, book the same chair again, save a shop, and leave a star after the fade.",
           },
         ].map((item) => (
           <article key={item.title} className="glass-panel rounded-2xl p-7">

@@ -38,7 +38,7 @@ export function isSchemaMissingError(error: unknown) {
   );
 }
 
-function isMissingTable(error: { code?: string; message?: string } | null) {
+export function isMissingTable(error: { code?: string; message?: string } | null) {
   if (!error) return false;
   return (
     error.code === "PGRST205" ||
@@ -76,7 +76,7 @@ export const getMemberships = cache(async () => {
   const { supabase, user, profile } = await getProfile();
   const { data, error } = await supabase
     .from("salon_memberships")
-    .select("id, role, status, salon_id, salons(id, name, slug, is_active)")
+    .select("id, role, status, salon_id, salons(id, name, slug, is_active, logo_url, city)")
     .eq("user_id", user.id)
     .eq("status", "active");
   if (isMissingTable(error)) throw new SchemaMissingError();

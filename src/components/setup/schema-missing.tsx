@@ -20,6 +20,9 @@ export function SchemaMissing() {
         <li>
           Repeat for <code>supabase/migrations/0003_payments_customer_insert.sql</code>.
         </li>
+        <li>
+          Repeat for <code>supabase/migrations/0004_client_profile.sql</code> (profile photos and saved shops).
+        </li>
         <li>Refresh this page.</li>
       </ol>
     </div>

@@ -16,10 +16,12 @@ export function AppSidebar({
   items,
   salonName,
   userName,
+  avatarUrl,
 }: {
   items: NavItem[];
   salonName?: string;
   userName?: string;
+  avatarUrl?: string | null;
 }) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
@@ -45,7 +47,17 @@ export function AppSidebar({
         ))}
       </nav>
       <div className="space-y-2 border-t border-border pt-4">
-        <p className="truncate text-sm">{userName}</p>
+        <Link href="/app/profile" className="flex items-center gap-3 rounded-md px-1 py-1 hover:bg-white/5">
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={avatarUrl} alt="" className="h-9 w-9 rounded-full object-cover" />
+          ) : (
+            <span className="flex h-9 w-9 items-center justify-center rounded-full border border-gold/40 text-xs text-gold">
+              {(userName ?? "A").slice(0, 1).toUpperCase()}
+            </span>
+          )}
+          <span className="truncate text-sm">{userName}</span>
+        </Link>
         <form action={signOutAction}>
           <Button type="submit" variant="secondary" className="w-full">
             Sign out

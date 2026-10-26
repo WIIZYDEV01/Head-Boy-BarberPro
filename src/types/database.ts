@@ -31,6 +31,7 @@ export interface Database {
           full_name: string | null;
           phone: string | null;
           avatar_url: string | null;
+          preferred_style: string | null;
           is_platform_admin: boolean;
           created_at: string;
           updated_at: string;
@@ -40,6 +41,7 @@ export interface Database {
           full_name?: string | null;
           phone?: string | null;
           avatar_url?: string | null;
+          preferred_style?: string | null;
           is_platform_admin?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -48,6 +50,7 @@ export interface Database {
           full_name?: string | null;
           phone?: string | null;
           avatar_url?: string | null;
+          preferred_style?: string | null;
           updated_at?: string;
         };
         Relationships: [];
@@ -248,6 +251,20 @@ export interface Database {
         };
         Insert: Record<string, unknown>;
         Update: Record<string, unknown>;
+        Relationships: [];
+      };
+      saved_salons: {
+        Row: {
+          user_id: string;
+          salon_id: string;
+          created_at: string;
+        };
+        Insert: {
+          user_id: string;
+          salon_id: string;
+          created_at?: string;
+        };
+        Update: Record<string, never>;
         Relationships: [];
       };
     };
