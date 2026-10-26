@@ -36,10 +36,10 @@ export default async function LoginPage({
           </p>
           {error === "oauth" ? (
             <p className="mt-4 text-sm text-red-300">
-              {detail?.toLowerCase().includes("unable to exchange") ||
-              detail?.toLowerCase().includes("google and supabase")
-                ? "Google opened, but the Client secret in Supabase does not match Google Cloud. Open Supabase → Authentication → Google, paste the Client ID and Client secret from Head Boy BarberPro Web, Save, then try once more."
-                : detail || "Google sign-in did not finish. Try once more, or use email below."}
+              Last Google attempt failed. Open a clean login page, then try once.
+              <Link href="/login" className="mt-2 block text-gold hover:underline">
+                Clear this message and try again
+              </Link>
             </p>
           ) : null}
           <div className="mt-8 space-y-6">
