@@ -76,7 +76,7 @@ export const getMemberships = cache(async () => {
   const { supabase, user, profile } = await getProfile();
   const { data, error } = await supabase
     .from("salon_memberships")
-    .select("id, role, status, salon_id, salons(id, name, slug, is_active, logo_url, city)")
+    .select("id, role, status, salon_id, salons(id, name, slug, is_active)")
     .eq("user_id", user.id)
     .eq("status", "active");
   if (isMissingTable(error)) throw new SchemaMissingError();

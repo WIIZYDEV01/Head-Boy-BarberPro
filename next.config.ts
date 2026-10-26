@@ -6,8 +6,9 @@ const nextConfig: NextConfig = {
   // blocked by prerender rules.
   experimental: {
     serverActions: {
-      bodySizeLimit: "3mb",
+      bodySizeLimit: "4mb",
     },
+    proxyClientMaxBodySize: "10mb",
   },
   images: {
     minimumCacheTTL: 86400,

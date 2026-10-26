@@ -16,7 +16,14 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
     if (isSchemaMissingError(error)) {
       return <SchemaMissing />;
     }
-    throw error;
+    return (
+      <div className="mx-auto max-w-lg px-4 py-16">
+        <h1 className="font-serif text-3xl">Dashboard could not load</h1>
+        <p className="mt-3 text-sm text-muted">
+          {error instanceof Error ? error.message : "Reload and try again."}
+        </p>
+      </div>
+    );
   }
   const items = [
     { href: "/app", label: "Overview" },
