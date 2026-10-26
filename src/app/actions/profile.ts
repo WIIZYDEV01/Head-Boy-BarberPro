@@ -46,45 +46,54 @@ export async function updateProfileAction(
   return { success: "Profile saved." };
 }
 
+function isUploadBlob(value: unknown): value is Blob {
+  return typeof value === "object" && value !== null && "arrayBuffer" in value && typeof value.arrayBuffer === "function";
+}
+
 export async function uploadAvatarAction(formData: FormData): Promise<ActionState> {
-  const file = formData.get("file");
-  if (!(file instanceof File) || file.size === 0) return { error: "Choose a photo." };
-  if (!IMAGE_TYPES.has(file.type)) return { error: "Use a JPEG, PNG, or WebP image." };
-  if (file.size > 2 * 1024 * 1024) return { error: "Photos must be 2MB or smaller." };
-
-  const { supabase, user } = await requireUser();
-  const ext = file.type === "image/png" ? "png" : file.type === "image/webp" ? "webp" : "jpg";
-  const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-  const bytes = Buffer.from(await file.arrayBuffer());
-
-  let publicUrl: string | null = null;
   try {
-    const admin = createServiceRoleClient();
-    const { error: uploadError } = await admin.storage.from("avatars").upload(path, bytes, {
-      contentType: file.type,
-      upsert: true,
-    });
-    if (uploadError) throw uploadError;
-    publicUrl = admin.storage.from("avatars").getPublicUrl(path).data.publicUrl;
-  } catch {
-    const { error: fallbackError } = await supabase.storage.from("avatars").upload(path, bytes, {
-      contentType: file.type,
-      upsert: true,
-    });
-    if (fallbackError) {
-      return {
-        error:
-          "Photo upload needs the avatars storage bucket. Run supabase/migrations/0004_client_profile.sql in the SQL editor, then try again.",
-      };
+    const file = formData.get("file");
+    if (!isUploadBlob(file) || file.size === 0) return { error: "Choose a photo." };
+    const type = "type" in file && typeof file.type === "string" ? file.type : "image/jpeg";
+    if (type && !IMAGE_TYPES.has(type) && type !== "application/octet-stream") {
+      return { error: "Use a JPEG, PNG, or WebP image." };
     }
-    publicUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl;
-  }
+    if (file.size > 2.5 * 1024 * 1024) return { error: "Photos must be 2MB or smaller." };
 
-  if (!publicUrl) return { error: "Upload finished without a photo URL." };
-  const { error } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
-  if (error) return { error: error.message };
-  refreshAccount();
-  return { success: "Photo updated." };
+    const { supabase, user } = await requireUser();
+    const ext = type.includes("png") ? "png" : type.includes("webp") ? "webp" : "jpg";
+    const path = `profile-avatars/${user.id}/${crypto.randomUUID()}.${ext}`;
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const contentType = IMAGE_TYPES.has(type) ? type : "image/jpeg";
+
+    let publicUrl: string | null = null;
+    try {
+      const admin = createServiceRoleClient();
+      const { error: uploadError } = await admin.storage.from("salon-assets").upload(path, bytes, {
+        contentType,
+        upsert: true,
+      });
+      if (uploadError) throw uploadError;
+      publicUrl = admin.storage.from("salon-assets").getPublicUrl(path).data.publicUrl;
+    } catch {
+      const { error: fallbackError } = await supabase.storage.from("salon-assets").upload(path, bytes, {
+        contentType,
+        upsert: true,
+      });
+      if (fallbackError) {
+        return { error: fallbackError.message || "Photo upload failed. Try a smaller JPEG." };
+      }
+      publicUrl = supabase.storage.from("salon-assets").getPublicUrl(path).data.publicUrl;
+    }
+
+    if (!publicUrl) return { error: "Upload finished without a photo URL." };
+    const { error } = await supabase.from("profiles").update({ avatar_url: publicUrl }).eq("id", user.id);
+    if (error) return { error: error.message };
+    refreshAccount();
+    return { success: "Photo updated." };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Photo upload failed. Try a smaller JPEG." };
+  }
 }
 
 export async function removeAvatarAction(): Promise<ActionState> {

@@ -6,6 +6,31 @@ import { removeAvatarAction, uploadAvatarAction } from "@/app/actions/profile";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+async function shrinkPhoto(file: File): Promise<File> {
+  if (file.size === 0) throw new Error("Choose a photo.");
+  try {
+    const bitmap = await createImageBitmap(file);
+    const max = 720;
+    const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not read that image.");
+    ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    bitmap.close();
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob((next) => (next ? resolve(next) : reject(new Error("Could not compress that photo."))), "image/jpeg", 0.82);
+    });
+    return new File([blob], "avatar.jpg", { type: "image/jpeg" });
+  } catch {
+    if (file.size > 2 * 1024 * 1024) {
+      throw new Error("That photo is too large. Save it as a smaller JPEG and try again.");
+    }
+    return file;
+  }
+}
+
 export function AvatarUpload({
   name,
   currentUrl,
@@ -30,14 +55,19 @@ export function AvatarUpload({
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
-    const formData = new FormData();
-    formData.set("file", file);
     setError(null);
     setSuccess(null);
     startTransition(async () => {
-      const result = await uploadAvatarAction(formData);
-      if (result?.error) setError(result.error);
-      else setSuccess(result?.success ?? "Photo updated.");
+      try {
+        const prepared = await shrinkPhoto(file);
+        const formData = new FormData();
+        formData.set("file", prepared);
+        const result = await uploadAvatarAction(formData);
+        if (result?.error) setError(result.error);
+        else setSuccess(result?.success ?? "Photo updated.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Photo upload failed. Try a smaller JPEG.");
+      }
     });
   }
 
@@ -86,7 +116,7 @@ export function AvatarUpload({
             </Button>
           ) : null}
         </div>
-        <p className="text-xs text-muted">JPEG, PNG, or WebP · 2MB max</p>
+        <p className="text-xs text-muted">Phone photos are resized automatically. JPEG, PNG, or WebP.</p>
         {error ? <p className="text-sm text-red-300">{error}</p> : null}
         {success ? <p className="text-sm text-emerald-300">{success}</p> : null}
       </div>

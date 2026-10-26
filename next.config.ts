@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   // Authenticated salon dashboards, bookings, and payments are request-time.
   // Cache Components / PPR is left off so cookies and session checks are not
   // blocked by prerender rules.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "3mb",
+    },
+  },
   images: {
     minimumCacheTTL: 86400,
     remotePatterns: [

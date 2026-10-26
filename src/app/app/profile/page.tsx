@@ -4,7 +4,7 @@ import { AvatarUpload } from "@/components/profile/avatar-upload";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { getProfile, isMissingTable, requireUser } from "@/lib/auth/session";
+import { getProfile, requireUser } from "@/lib/auth/session";
 
 export default async function ProfilePage() {
   const { profile, user } = await getProfile();
@@ -19,7 +19,7 @@ export default async function ProfilePage() {
     .from("saved_salons")
     .select("salon_id, salons(name, slug, city)")
     .eq("user_id", user.id);
-  const savedShops = isMissingTable(saved.error) ? [] : (saved.data ?? []);
+  const savedShops = saved.error ? [] : (saved.data ?? []);
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
