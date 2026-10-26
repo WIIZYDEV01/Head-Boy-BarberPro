@@ -18,12 +18,11 @@ export function OAuthButtons({ next = "/app" }: { next?: string }) {
     try {
       const supabase = createBrowserSupabaseClient();
       const origin = window.location.origin;
+      document.cookie = `oauth_next=${encodeURIComponent(next)}; path=/; max-age=600; samesite=lax`;
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next)}`,
-          queryParams:
-            provider === "google" ? { access_type: "offline", prompt: "consent" } : undefined,
+          redirectTo: `${origin}/auth/callback`,
           scopes: provider === "discord" ? "identify email" : undefined,
         },
       });

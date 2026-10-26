@@ -10,9 +10,9 @@ import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; error?: string }>;
+  searchParams: Promise<{ next?: string; error?: string; detail?: string }>;
 }) {
-  const { next, error } = await searchParams;
+  const { next, error, detail } = await searchParams;
   const destination = next || "/app";
 
   return (
@@ -34,7 +34,8 @@ export default async function LoginPage({
           <p className="mt-2 text-sm text-muted">Google, Discord, or email. New email accounts are created on first sign-in.</p>
           {error === "oauth" ? (
             <p className="mt-4 text-sm text-red-300">
-              Social sign-in needs Google and Discord enabled in Supabase Authentication → Providers.
+              {detail ||
+                "Google sign-in did not finish. Add this site URL in Supabase → Authentication → URL configuration, and in Google Cloud → Authorized JavaScript origins. Discord can stay off."}
             </p>
           ) : null}
           <div className="mt-8 space-y-6">

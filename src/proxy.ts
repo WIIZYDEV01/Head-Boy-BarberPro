@@ -13,8 +13,14 @@ function isPublicPath(pathname: string) {
 }
 
 export async function proxy(request: NextRequest) {
-  const { user, response } = await updateSession(request);
   const { pathname } = request.nextUrl;
+
+  // Do not call getUser() here. It can consume the OAuth code before the callback route exchanges it.
+  if (pathname.startsWith("/auth/callback")) {
+    return NextResponse.next({ request });
+  }
+
+  const { user, response } = await updateSession(request);
 
   if (!user && !isPublicPath(pathname)) {
     const url = request.nextUrl.clone();
