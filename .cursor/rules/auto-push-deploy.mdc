@@ -1,0 +1,17 @@
+---
+description: Auto-commit, push to GitHub, and rely on Vercel production deploys
+alwaysApply: true
+---
+
+# Auto push and deploy
+
+The user wants every code change in this repo to go live without extra asking.
+
+After you finish a real code change:
+
+1. Stage the relevant files. Never stage `.env` or secrets.
+2. Commit on `main` with a short message.
+3. Push to `origin main` (`https://github.com/WIIZYDEV01/Head-Boy-BarberPro.git`).
+4. Vercel project **head-boy-barberpro-web** deploys automatically from GitHub. Do not create a new Vercel project.
+
+Do not force-push. Do not skip the push after a commit unless GitHub auth failed.
