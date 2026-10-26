@@ -16,8 +16,12 @@ function CallbackHandler() {
     started.current = true;
 
     const fail = (detail: string) => {
-      setStatus(detail);
-      router.replace(`/login?error=oauth&detail=${encodeURIComponent(detail)}`);
+      const friendly =
+        detail.toLowerCase().includes("unable to exchange external code") || detail.startsWith("4/")
+          ? "Google and Supabase do not match. In Google Cloud, Authorized redirect URI must be exactly https://vsejrjarwtgqolqxladc.supabase.co/auth/v1/callback (remove any vercel.app redirect). Then paste that same client's ID and secret into Supabase → Authentication → Google and save."
+          : detail;
+      setStatus(friendly);
+      router.replace(`/login?error=oauth&detail=${encodeURIComponent(friendly)}`);
     };
 
     const providerError = searchParams.get("error_description") || searchParams.get("error");
