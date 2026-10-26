@@ -44,6 +44,7 @@ export function OAuthButtons({ next = "/app" }: { next?: string }) {
     <div className="space-y-3">
       <button
         type="button"
+        id="continue-with-google"
         onClick={() => void continueWith("google")}
         disabled={pending !== null}
         className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-white/15 bg-white text-sm font-semibold text-black transition hover:bg-zinc-100 disabled:opacity-60"
