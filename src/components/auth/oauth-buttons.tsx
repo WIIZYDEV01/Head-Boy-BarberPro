@@ -4,39 +4,129 @@ import { useState } from "react";
 import { isSupabaseConfigured } from "@/lib/env";
 import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
+const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  "308672627078-bubr9qkh3undlrt2viim0elu2n0oocv3.apps.googleusercontent.com";
+
+type GooglePromptNotification = {
+  isNotDisplayed: () => boolean;
+  isSkippedMoment: () => boolean;
+  isDismissedMoment: () => boolean;
+};
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: Record<string, unknown>) => void;
+          prompt: (cb?: (notification: GooglePromptNotification) => void) => void;
+          renderButton: (parent: HTMLElement, config: Record<string, unknown>) => void;
+        };
+      };
+    };
+  }
+}
+
 export function OAuthButtons({ next = "/app" }: { next?: string }) {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState<"google" | "discord" | null>(null);
 
-  async function continueWith(provider: "google" | "discord") {
+  async function finishGoogle(credential: string) {
+    const supabase = createBrowserSupabaseClient();
+    const { error: signInError } = await supabase.auth.signInWithIdToken({
+      provider: "google",
+      token: credential,
+    });
+    if (signInError) {
+      setError(signInError.message);
+      setPending(null);
+      return;
+    }
+    window.location.assign(next.startsWith("/") ? next : "/app");
+  }
+
+  async function continueWithGoogle() {
+    setError(null);
+    if (!isSupabaseConfigured()) {
+      setError("Supabase is not configured, so Google sign-in cannot start.");
+      return;
+    }
+    setPending("google");
+    try {
+      await loadGoogleScript();
+      const googleId = window.google?.accounts.id;
+      if (!googleId) {
+        throw new Error("Google sign-in script did not load. Check your network and try again.");
+      }
+      googleId.initialize({
+        client_id: GOOGLE_CLIENT_ID,
+        callback: (response: { credential?: string }) => {
+          if (!response.credential) {
+            setError("Google did not return a sign-in token.");
+            setPending(null);
+            return;
+          }
+          void finishGoogle(response.credential);
+        },
+        ux_mode: "popup",
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      googleId.prompt((notification) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment() || notification.isDismissedMoment()) {
+          const host = document.getElementById("google-gis-button");
+          if (!host) {
+            setPending(null);
+            setError("Google popup was blocked. Allow popups for this site and try again.");
+            return;
+          }
+          host.innerHTML = "";
+          googleId.renderButton(host, {
+            type: "standard",
+            theme: "outline",
+            size: "large",
+            width: 320,
+            text: "continue_with",
+          });
+          setPending(null);
+        }
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
+      setPending(null);
+    }
+  }
+
+  async function continueWithDiscord() {
     setError(null);
     if (!isSupabaseConfigured()) {
       setError("Supabase is not configured, so social sign-in cannot start.");
       return;
     }
-    setPending(provider);
+    setPending("discord");
     try {
       const supabase = createBrowserSupabaseClient();
       const origin = window.location.origin;
       document.cookie = `oauth_next=${encodeURIComponent(next)}; path=/; max-age=600; samesite=lax`;
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
-        provider,
+        provider: "discord",
         options: {
           redirectTo: `${origin}/auth/callback`,
-          scopes: provider === "discord" ? "identify email" : undefined,
+          scopes: "identify email",
         },
       });
       if (oauthError) {
         setError(
-          oauthError.message.includes("Unsupported provider") ||
-            oauthError.message.toLowerCase().includes("provider is not enabled")
-            ? `Turn on ${provider === "google" ? "Google" : "Discord"} in Supabase → Authentication → Providers.`
+          oauthError.message.toLowerCase().includes("provider is not enabled") ||
+            oauthError.message.includes("Unsupported provider")
+            ? "Turn on Discord in Supabase → Authentication → Providers if you want Discord login."
             : oauthError.message,
         );
         setPending(null);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Social sign-in failed");
+      setError(err instanceof Error ? err.message : "Discord sign-in failed");
       setPending(null);
     }
   }
@@ -45,16 +135,17 @@ export function OAuthButtons({ next = "/app" }: { next?: string }) {
     <div className="space-y-3">
       <button
         type="button"
-        onClick={() => continueWith("google")}
+        onClick={() => void continueWithGoogle()}
         disabled={pending !== null}
         className="flex h-12 w-full items-center justify-center gap-3 rounded-full border border-white/15 bg-white text-sm font-semibold text-black transition hover:bg-zinc-100 disabled:opacity-60"
       >
         <GoogleMark />
         {pending === "google" ? "Opening Google…" : "Continue with Google"}
       </button>
+      <div id="google-gis-button" className="flex justify-center" />
       <button
         type="button"
-        onClick={() => continueWith("discord")}
+        onClick={() => void continueWithDiscord()}
         disabled={pending !== null}
         className="flex h-12 w-full items-center justify-center gap-3 rounded-full bg-[#5865F2] text-sm font-semibold text-white transition hover:bg-[#4752c4] disabled:opacity-60"
       >
@@ -64,6 +155,25 @@ export function OAuthButtons({ next = "/app" }: { next?: string }) {
       {error ? <p className="text-center text-sm text-red-300">{error}</p> : null}
     </div>
   );
+}
+
+function loadGoogleScript() {
+  if (window.google?.accounts?.id) return Promise.resolve();
+  return new Promise<void>((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>("script[data-google-gis]");
+    if (existing) {
+      existing.addEventListener("load", () => resolve(), { once: true });
+      existing.addEventListener("error", () => reject(new Error("Could not load Google.")), { once: true });
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.dataset.googleGis = "true";
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Could not load Google."));
+    document.head.appendChild(script);
+  });
 }
 
 function GoogleMark() {
@@ -80,7 +190,7 @@ function GoogleMark() {
 function DiscordMark() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M20.3 4.4A19.8 19.8 0 0 0 15.6 3l-.2.4c1.8.5 3.4 1.3 5 2.3-2.1-1-4.4-1.7-6.8-2-.6-.1-1.2-.1-1.8-.1s-1.2 0-1.8.1c-2.4.3-4.7 1-6.8 2 1.6-1 3.2-1.8 5-2.3L8.4 3A19.8 19.8 0 0 0 3.7 4.4C1.3 8.1.2 11.6.5 15.1c2 1.5 4 2.6 6.1 3.3l.8-1.3c-.8-.3-1.6-.7-2.3-1.2.2.1 3.2 1.8 8.9 1.8s8.7-1.7 8.9-1.8c-.7.5-1.5.9-2.3 1.2l.8 1.3c2.1-.7 4.1-1.8 6.1-3.3.4-4-.7-7.5-3.2-10.7zM8.3 13.6c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8-.7 1.8-1.6 1.8zm7.4 0c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8-.7 1.8-1.6 1.8z" />
+      <path d="M20.3 4.4A19.8 19.8 0 0 0 15.6 3l-.2.4c1.8.5 3.4 1.3 5 2.3-2.1-1-4.4-1.7-6.8-2-.6-.1-1.2-.1-1.8-.1s-1.2 0-1.8.1c-2.4.3-4.7 1-6.8 2 1.6-1 3.2-1.8 5-2.3L8.4 3A19.8 19.8 0 0 0 3.7 4.4C1.3 8.1.2 11.6.5 15.1c2 1.5 4 2.6 6.1 3.3l.8-1.3c-.8-.3-1.6-.7-2.3-1.2.2.1 3.2 1.8 8.9 1.8s8.7-1.7 8.9-1.8c-.7.5 1.5.9-2.3 1.2l.8 1.3c2.1-.7 4.1-1.8 6.1-3.3.4-4-.7-7.5-3.2-10.7zM8.3 13.6c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8-.7 1.8-1.6 1.8zm7.4 0c-.9 0-1.6-.8-1.6-1.8s.7-1.8 1.6-1.8 1.7.8 1.6 1.8-.7 1.8-1.6 1.8z" />
     </svg>
   );
 }
