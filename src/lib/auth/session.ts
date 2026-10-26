@@ -10,6 +10,7 @@ export const getOptionalUser = cache(async () => {
 });
 
 export const getSessionUser = cache(async () => {
+  if (!isSupabaseConfigured()) return { supabase: null, user: null };
   const supabase = await createServerSupabaseClient();
   const {
     data: { user },
@@ -19,8 +20,8 @@ export const getSessionUser = cache(async () => {
 
 export async function requireUser() {
   const ctx = await getSessionUser();
-  if (!ctx.user) redirect("/login");
-  return { ...ctx, user: ctx.user };
+  if (!ctx.supabase || !ctx.user) redirect("/login");
+  return { supabase: ctx.supabase, user: ctx.user };
 }
 
 export class SchemaMissingError extends Error {

@@ -3,6 +3,8 @@ import { AppSidebar } from "@/components/dashboard/sidebar";
 import { SchemaMissing } from "@/components/setup/schema-missing";
 import { getMemberships, isSchemaMissingError } from "@/lib/auth/session";
 
+export const dynamic = "force-dynamic";
+
 export default async function AppLayout({ children }: { children: ReactNode }) {
   let memberships;
   let profile;
