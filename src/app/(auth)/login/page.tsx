@@ -23,8 +23,8 @@ export default async function LoginPage({
           {BRAND_TAGLINE}
         </h1>
         <p className="mt-6 max-w-md text-base leading-7 text-muted">
-          {BRAND_NAME} is built like a high-end shop floor: live slots, staff, customers, and verified Paystack payments.
-          Sign in to enter.
+          Flagship floor: a long run of classic chairs, mirrors, and barbers at work. Live slots, staff, and Paystack
+          under it. Sign in to enter.
         </p>
       </section>
       <section className="flex flex-1 items-center justify-center px-4 py-12">

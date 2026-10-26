@@ -6,20 +6,20 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 const GALLERY = [
   {
-    src: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=640&q=55",
-    alt: "Classic barbershop interior with chairs",
+    src: "https://images.unsplash.com/photo-1585747860715-2ba37e788b70?auto=format&fit=crop&w=900&q=60",
+    alt: "Long row of classic barber chairs and wall mirrors",
   },
   {
-    src: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=640&q=55",
-    alt: "Barber cutting hair",
+    src: "https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=60",
+    alt: "Wide classic shop with stations and lighting",
   },
   {
-    src: "https://images.unsplash.com/photo-1599351431202-1e0f013fd9b1?auto=format&fit=crop&w=640&q=55",
-    alt: "Close fade in the chair",
+    src: "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?auto=format&fit=crop&w=900&q=60",
+    alt: "Barber cutting hair in the chair",
   },
   {
-    src: "https://images.unsplash.com/photo-1621605815971-fbc98d665033?auto=format&fit=crop&w=640&q=55",
-    alt: "Beard trim with clippers",
+    src: "https://images.unsplash.com/photo-1599351431202-1e0f013fd9b1?auto=format&fit=crop&w=900&q=60",
+    alt: "Close fade on the shop floor",
   },
 ];
 
@@ -31,10 +31,11 @@ export default async function HomePage() {
       <section className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-24">
         <p className="text-xs uppercase tracking-[0.45em] text-gold">Head Boy BarberPro</p>
         <h1 className="mt-5 max-w-3xl font-serif text-5xl leading-[1.05] md:text-7xl">
-          Precision cuts. Live chairs. Verified pay.
+          A flagship floor. Rows of chairs. Real work.
         </h1>
         <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
-          Book a published salon, or run yours: services, team, hours, appointments, and Paystack — no dummy numbers.
+          Classic mirrors, a long line of stations, barbers on the tools. Book a published salon — or run yours with live
+          slots and Paystack.
         </p>
         <div className="mt-10 flex flex-wrap gap-3">
           <Button asChild size="lg">
@@ -70,7 +71,9 @@ export default async function HomePage() {
 
       <section id="gallery" className="mx-auto max-w-6xl px-4 pb-20">
         <h2 className="font-serif text-3xl">The floor</h2>
-        <p className="mt-2 text-sm text-muted">The look of a flagship shop. Your live salon data sits underneath.</p>
+        <p className="mt-2 text-sm text-muted">
+          Wide stations, glass, and chairs — the room people remember when they walk in.
+        </p>
         <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {GALLERY.map((shot) => (
             <div key={shot.src} className="relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10">

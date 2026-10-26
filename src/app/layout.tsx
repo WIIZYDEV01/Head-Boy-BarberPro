@@ -36,6 +36,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         {supabaseUrl ? <link rel="preconnect" href={supabaseUrl} /> : null}
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="dns-prefetch" href="https://videos.pexels.com" />
+        <link rel="dns-prefetch" href="https://assets.mixkit.co" />
       </head>
       <body className="relative flex min-h-full flex-col bg-transparent text-foreground">
         <AppChrome>{children}</AppChrome>

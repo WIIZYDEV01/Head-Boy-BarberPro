@@ -55,3 +55,36 @@ h3,
   backdrop-filter: blur(8px);
   box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
 }
+
+.shop-reel {
+  transform: scale(1.08);
+  animation: shop-kenburns 28s ease-in-out infinite alternate;
+  filter: saturate(1.08) contrast(1.06) brightness(0.92);
+}
+
+.shop-vignette {
+  background:
+    radial-gradient(ellipse at center, transparent 18%, rgba(0, 0, 0, 0.42) 100%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.38), rgba(12, 9, 6, 0.28) 42%, rgba(0, 0, 0, 0.72));
+  box-shadow: inset 0 0 120px rgba(201, 163, 90, 0.12);
+}
+
+.shop-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+@keyframes shop-kenburns {
+  from {
+    transform: scale(1.06) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.16) translate3d(-1.4%, 1%, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shop-reel {
+    animation: none;
+  }
+}
