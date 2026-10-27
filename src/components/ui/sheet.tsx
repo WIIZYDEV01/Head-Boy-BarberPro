@@ -19,15 +19,16 @@ export function SheetContent({
 }) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/70" />
+      <DialogPrimitive.Overlay className="sheet-overlay fixed inset-0 z-50 bg-black/70" />
       <DialogPrimitive.Content
         className={cn(
-          "fixed z-50 flex h-full w-72 flex-col border-border bg-background p-4 shadow-xl",
+          "sheet-panel fixed z-50 flex h-full w-[min(20rem,88vw)] flex-col border-border bg-background p-4 shadow-xl",
           side === "left" ? "left-0 border-r" : "right-0 border-l",
           className,
         )}
         {...props}
       >
+        <DialogPrimitive.Title className="sr-only">Menu</DialogPrimitive.Title>
         {children}
         <DialogPrimitive.Close className="absolute right-4 top-4 text-muted hover:text-foreground">
           <X className="h-4 w-4" />
