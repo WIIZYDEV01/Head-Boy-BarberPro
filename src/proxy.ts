@@ -33,6 +33,14 @@ export async function proxy(request: NextRequest) {
     });
   }
 
+  if (
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
+    pathname === "/llms.txt"
+  ) {
+    return NextResponse.next({ request });
+  }
+
   // Do not call getUser() here. It can consume the OAuth code before the callback route exchanges it.
   if (pathname.startsWith("/auth/callback")) {
     return NextResponse.next({ request });
@@ -59,6 +67,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|llms.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|mp4|html|txt|xml)$).*)",
   ],
 };
