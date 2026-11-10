@@ -5,6 +5,10 @@ import { getMemberships, isSchemaMissingError } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default async function AppLayout({ children }: { children: ReactNode }) {
   let memberships;
   let profile;

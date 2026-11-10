@@ -1,9 +1,33 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookingForm } from "@/components/booking/booking-form";
 import { Button } from "@/components/ui/button";
 import { getOptionalUser } from "@/lib/auth/session";
+import { pageMeta } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createServerSupabaseClient();
+  const { data: salon } = await supabase
+    .from("salons")
+    .select("name, city")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .eq("is_active", true)
+    .maybeSingle();
+  const name = salon?.name ?? "salon";
+  return pageMeta({
+    title: `Book ${name}`,
+    description: `Book a live barbing slot at ${name}${salon?.city ? ` in ${salon.city}` : ""} with Head Boy BarberPro.`,
+    path: `/salons/${slug}/book`,
+  });
+}
 
 export default async function BookPage({
   params,

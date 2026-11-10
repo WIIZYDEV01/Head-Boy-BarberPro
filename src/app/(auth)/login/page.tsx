@@ -6,6 +6,13 @@ import { ActionForm } from "@/components/forms/action-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/brand";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata = pageMeta({
+  title: "Sign in",
+  description: "Sign in to Head Boy BarberPro (BarberPro / BerbingPro) with Google, Discord, or email to book a chair or run your barbing salon.",
+  path: "/login",
+});
 
 export default async function LoginPage({
   searchParams,

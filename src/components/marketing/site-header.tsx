@@ -19,6 +19,9 @@ export function SiteHeader() {
           <Link href="/#team" className="hover:text-foreground">
             Team
           </Link>
+          <Link href="/#faq" className="hover:text-foreground">
+            FAQ
+          </Link>
           <Link href="/contact" className="hover:text-foreground">
             Contact
           </Link>

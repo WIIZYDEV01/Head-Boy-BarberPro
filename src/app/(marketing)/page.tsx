@@ -1,8 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { JsonLd } from "@/components/seo/json-ld";
 import { isSupabaseConfigured } from "@/lib/env";
+import { HOME_FAQS, pageMeta, SITE_URL } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export const metadata = pageMeta({
+  title: "Book a barbing salon online",
+  description:
+    "Head Boy BarberPro — also searched as BarberPro and BerbingPro — lets you book a live barbing chair or run a salon with staff, hours, and Paystack.",
+  path: "/",
+});
 
 const GALLERY = [
   {
@@ -28,14 +37,39 @@ export default async function HomePage() {
 
   return (
     <div>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: HOME_FAQS.map((item) => ({
+            "@type": "Question",
+            name: item.q,
+            acceptedAnswer: { "@type": "Answer", text: item.a },
+          })),
+        }}
+      />
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "Head Boy BarberPro",
+          alternateName: ["BarberPro", "BerbingPro", "BarbingPro"],
+          url: SITE_URL,
+          potentialAction: {
+            "@type": "SearchAction",
+            target: `${SITE_URL}/salons?q={search_term_string}`,
+            "query-input": "required name=search_term_string",
+          },
+        }}
+      />
       <section className="mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-24">
-        <p className="text-xs uppercase tracking-[0.45em] text-gold">Head Boy BarberPro</p>
+        <p className="text-xs uppercase tracking-[0.45em] text-gold">Head Boy BarberPro · BarberPro · BerbingPro</p>
         <h1 className="mt-5 max-w-3xl font-serif text-5xl leading-[1.05] md:text-7xl">
-          A flagship floor. Rows of chairs. Real work.
+          Book a barbing salon. Run the shop.
         </h1>
         <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
-          Classic mirrors, a long line of stations, barbers on the tools. Book a published salon — or run yours with live
-          slots and Paystack.
+          Classic chairs, mirrors, and barbers on the tools. Head Boy BarberPro — also called BarberPro and BerbingPro —
+          books live slots and takes Paystack. No dummy calendars.
         </p>
         <div className="mt-10 flex flex-wrap gap-3">
           <Button asChild size="lg">
@@ -110,6 +144,19 @@ export default async function HomePage() {
             ))}
           </ul>
         )}
+      </section>
+
+      <section id="faq" className="mx-auto max-w-6xl px-4 pb-24">
+        <h2 className="font-serif text-3xl">Questions people ask</h2>
+        <p className="mt-2 text-sm text-muted">Straight answers for Google, AI Overviews, and anyone comparing barbing apps.</p>
+        <dl className="mt-8 grid gap-4 md:grid-cols-2">
+          {HOME_FAQS.map((item) => (
+            <div key={item.q} className="glass-panel rounded-2xl p-6">
+              <dt className="font-serif text-xl text-gold">{item.q}</dt>
+              <dd className="mt-3 text-sm leading-6 text-muted">{item.a}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
     </div>
   );

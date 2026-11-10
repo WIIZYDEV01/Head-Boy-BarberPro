@@ -1,3 +1,12 @@
+import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
+
+export const metadata: Metadata = pageMeta({
+  title: "Privacy policy",
+  description: "How Head Boy BarberPro stores account, salon, appointment, and Paystack metadata. Card numbers are never kept here.",
+  path: "/privacy",
+});
+
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">

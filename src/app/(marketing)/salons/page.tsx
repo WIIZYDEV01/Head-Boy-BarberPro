@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 import { isSupabaseConfigured } from "@/lib/env";
+import { pageMeta } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = pageMeta({
+  title: "Find a barbing salon",
+  description:
+    "Search published Head Boy BarberPro shops by name or city. Book a fade, beard, or full cut with a live chair — BarberPro / BerbingPro directory.",
+  path: "/salons",
+});
 
 export default async function SalonsPage({
   searchParams,
@@ -37,9 +46,10 @@ export default async function SalonsPage({
   return (
     <div className="mx-auto max-w-6xl px-4 py-16">
       <p className="text-xs uppercase tracking-[0.35em] text-gold">Directory</p>
-      <h1 className="mt-3 font-serif text-5xl">Find a salon</h1>
+      <h1 className="mt-3 font-serif text-5xl">Find a barbing salon</h1>
       <p className="mt-3 max-w-2xl text-muted">
-        Search live published shops the way Booksy and StyleSeat surface nearby chairs.
+        Live Head Boy BarberPro shops only. Search by name or city, then book a chair — the BerbingPro / BarberPro
+        directory.
       </p>
       <form className="mt-8 max-w-md">
         <Input name="q" placeholder="Search by shop or city" defaultValue={q} />

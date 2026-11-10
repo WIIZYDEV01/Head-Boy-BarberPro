@@ -8,6 +8,10 @@ function isPublicPath(pathname: string) {
   if (AUTH_PAGES.some((path) => pathname === path || pathname.startsWith(`${path}/`))) {
     return true;
   }
+  if (pathname === "/") return true;
+  if (pathname.startsWith("/salons")) return true;
+  if (pathname === "/contact" || pathname === "/privacy" || pathname === "/terms") return true;
+  if (pathname === "/robots.txt" || pathname === "/sitemap.xml" || pathname === "/llms.txt") return true;
   if (pathname.startsWith("/auth/callback")) return true;
   if (pathname.startsWith("/api/webhooks")) return true;
   if (GOOGLE_VERIFY_FILE.test(pathname)) return true;

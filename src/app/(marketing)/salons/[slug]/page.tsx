@@ -1,11 +1,39 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SaveSalonButton } from "@/components/profile/save-salon-button";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { getOptionalUser, isMissingTable } from "@/lib/auth/session";
 import { formatMoney } from "@/lib/money";
+import { pageMeta, SITE_URL } from "@/lib/seo";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createServerSupabaseClient();
+  const { data: salon } = await supabase
+    .from("salons")
+    .select("name, city, description")
+    .eq("slug", slug)
+    .eq("is_published", true)
+    .eq("is_active", true)
+    .maybeSingle();
+  if (!salon) return pageMeta({ title: "Salon", description: "This barbing salon is not published.", path: `/salons/${slug}`, index: false });
+  const where = salon.city ? ` in ${salon.city}` : "";
+  return pageMeta({
+    title: `${salon.name} barbing salon`,
+    description:
+      salon.description?.slice(0, 150) ||
+      `Book ${salon.name}${where} on Head Boy BarberPro. Live chairs, published prices, Paystack.`,
+    path: `/salons/${slug}`,
+  });
+}
 
 export default async function SalonPublicPage({
   params,
@@ -64,7 +92,30 @@ export default async function SalonPublicPage({
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-16">
-      <p className="text-sm uppercase tracking-[0.25em] text-gold">Salon</p>
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "HairSalon",
+          name: salon.name,
+          url: `${SITE_URL}/salons/${salon.slug}`,
+          description: salon.description || `${salon.name} barbing salon on Head Boy BarberPro`,
+          telephone: salon.phone || undefined,
+          email: salon.email || undefined,
+          image: salon.logo_url || undefined,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: salon.address_line || undefined,
+            addressLocality: salon.city || undefined,
+            addressRegion: salon.state || undefined,
+            addressCountry: salon.country || undefined,
+          },
+          aggregateRating:
+            average && ratings.length
+              ? { "@type": "AggregateRating", ratingValue: average.toFixed(1), reviewCount: ratings.length }
+              : undefined,
+        }}
+      />
+      <p className="text-sm uppercase tracking-[0.25em] text-gold">Barbing salon</p>
       <h1 className="mt-2 font-serif text-5xl">{salon.name}</h1>
       <p className="mt-4 max-w-2xl text-muted">
         {[salon.address_line, salon.city, salon.state].filter(Boolean).join(", ") || "Address not published"}
