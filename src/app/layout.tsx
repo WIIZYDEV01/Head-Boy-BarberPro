@@ -25,6 +25,9 @@ export const metadata: Metadata = {
     template: `%s · ${BRAND_NAME}`,
   },
   description: "Premium multi-salon booking and management for barbing salons.",
+  verification: {
+    google: "KzVTj8W8Lu_RJxYpS6qPwJcnqYzjrvx2a7cfrGB4fZI",
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
