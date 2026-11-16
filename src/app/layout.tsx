@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Outfit, Playfair_Display } from "next/font/google";
 import { Toaster } from "sonner";
@@ -64,6 +64,19 @@ export const metadata: Metadata = {
   verification: {
     google: "KzVTj8W8Lu_RJxYpS6qPwJcnqYzjrvx2a7cfrGB4fZI",
   },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/apple-icon", sizes: "180x180" }],
+  },
+  appleWebApp: {
+    capable: true,
+    title: BRAND_NAME,
+    statusBarStyle: "black-translucent",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#070707",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
